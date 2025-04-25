@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
+  AlertTriangle,
   BarChart,
   Bell,
   Calendar,
@@ -25,10 +26,10 @@ import {
   Award,
   Sunrise,
   Dumbbell,
-  Salad,
   Carrot,
   Droplets,
   Target,
+  X,
 } from "lucide-react"
 import { userData, challenges, nutritionTips } from "@/lib/mock-data"
 
@@ -48,6 +49,7 @@ const BadgeIcon = ({ name }) => {
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
+  const [showAlert, setShowAlert] = useState(true)
 
   // Calculate progress percentages
   const caloriesProgress = (userData.progress.calories / userData.dailyGoals.calories) * 100
@@ -59,6 +61,33 @@ export default function DashboardPage() {
   return (
     <AppSidebar>
       <div className="space-y-6">
+        {/* Sodium Alert */}
+        {showAlert && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start justify-between">
+            <div className="flex items-start">
+              <AlertTriangle className="h-6 w-6 text-red-500 mr-3 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-red-700">Emergency Alert: High Sodium Intake</h3>
+                <p className="text-red-600">
+                  Your sodium intake has exceeded your daily limit by 45%. This could affect your blood pressure.
+                </p>
+                <div className="mt-2">
+                  <Button size="sm" variant="outline" className="text-red-600 border-red-300 mr-2">
+                    View Details
+                  </Button>
+                  <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                    Contact Nutritionist
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setShowAlert(false)} className="text-red-500 h-8 w-8">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
+        )}
+
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -327,7 +356,7 @@ export default function DashboardPage() {
                         }`}
                       >
                         {challenge.icon === "salad" ? (
-                          <Salad className="h-5 w-5" />
+                          <Utensils className="h-5 w-5" />
                         ) : challenge.icon === "droplet" ? (
                           <Droplet className="h-5 w-5" />
                         ) : (
@@ -430,7 +459,7 @@ export default function DashboardPage() {
                   <div className="border rounded-lg p-4 bg-gradient-to-br from-green-50 to-teal-50 border-green-100">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 rounded-full bg-green-100 text-green-600">
-                        <Salad className="h-5 w-5" />
+                        <Utensils className="h-5 w-5" />
                       </div>
                       <h3 className="font-medium text-green-800">Plant-Based Week</h3>
                     </div>
