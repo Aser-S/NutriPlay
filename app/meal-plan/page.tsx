@@ -50,8 +50,24 @@ import {
 } from "lucide-react"
 import { mealPlan } from "@/lib/mock-data"
 
+// Replace the MealIcon component with this improved version that handles specific days and meals
+
 // Custom icon component for meals
-const MealIcon = ({ type, mealName }) => {
+const MealIcon = ({ type, mealName, day }) => {
+  // Handle specific day and meal combinations first
+  if (day === "friday") {
+    if (type === "breakfast") return <Sandwich className="h-8 w-8 text-green-600" /> // Avocado toast
+    if (type === "lunch") return <Salad className="h-8 w-8 text-green-500" /> // Tuna salad
+    if (type === "dinner") return <Utensils className="h-8 w-8 text-amber-600" /> // Bean burrito bowl
+  }
+
+  if (day === "monday") {
+    if (type === "breakfast") return <Milk className="h-8 w-8 text-blue-200" /> // Greek yogurt parfait
+    if (type === "lunch") return <Egg className="h-8 w-8 text-orange-300" /> // Chicken & quinoa bowl
+    if (type === "snack" && mealName.toLowerCase().includes("protein shake"))
+      return <Activity className="h-8 w-8 text-blue-500" /> // Protein shake
+  }
+
   // Determine the appropriate icon based on meal name keywords
   const lowercaseName = mealName.toLowerCase()
 
@@ -61,6 +77,8 @@ const MealIcon = ({ type, mealName }) => {
     if (lowercaseName.includes("yogurt")) return <Milk className="h-8 w-8 text-blue-100" />
     if (lowercaseName.includes("smoothie")) return <Banana className="h-8 w-8 text-yellow-400" />
     if (lowercaseName.includes("oatmeal")) return <Wheat className="h-8 w-8 text-amber-700" />
+    if (lowercaseName.includes("avocado")) return <Sandwich className="h-8 w-8 text-green-600" />
+    if (lowercaseName.includes("toast")) return <Sandwich className="h-8 w-8 text-amber-400" />
     return <Coffee className="h-8 w-8 text-amber-800" />
   }
 
@@ -70,6 +88,9 @@ const MealIcon = ({ type, mealName }) => {
     if (lowercaseName.includes("soup")) return <Soup className="h-8 w-8 text-orange-400" />
     if (lowercaseName.includes("bowl")) return <Utensils className="h-8 w-8 text-purple-500" />
     if (lowercaseName.includes("wrap")) return <Sandwich className="h-8 w-8 text-green-400" />
+    if (lowercaseName.includes("tuna")) return <Fish className="h-8 w-8 text-blue-400" />
+    if (lowercaseName.includes("chicken")) return <Egg className="h-8 w-8 text-orange-300" />
+    if (lowercaseName.includes("quinoa")) return <Wheat className="h-8 w-8 text-amber-600" />
     return <Utensils className="h-8 w-8 text-blue-500" />
   }
 
@@ -81,6 +102,8 @@ const MealIcon = ({ type, mealName }) => {
       return <Beef className="h-8 w-8 text-red-500" />
     if (lowercaseName.includes("pizza")) return <Pizza className="h-8 w-8 text-red-400" />
     if (lowercaseName.includes("pasta")) return <Utensils className="h-8 w-8 text-yellow-600" />
+    if (lowercaseName.includes("bean") || lowercaseName.includes("burrito"))
+      return <Utensils className="h-8 w-8 text-amber-600" />
     return <ChefHat className="h-8 w-8 text-purple-500" />
   }
 
@@ -93,6 +116,7 @@ const MealIcon = ({ type, mealName }) => {
     if (lowercaseName.includes("fruit") || lowercaseName.includes("berry"))
       return <Cherry className="h-8 w-8 text-red-400" />
     if (lowercaseName.includes("grape")) return <Grape className="h-8 w-8 text-purple-500" />
+    if (lowercaseName.includes("protein")) return <Activity className="h-8 w-8 text-blue-500" />
     return <Apple className="h-8 w-8 text-green-500" />
   }
 
@@ -330,7 +354,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <MealIcon type="breakfast" mealName={meals.breakfast.name} />
+                      <MealIcon type="breakfast" mealName={meals.breakfast.name} day={day} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.breakfast.name}</h3>
@@ -379,7 +403,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <MealIcon type="lunch" mealName={meals.lunch.name} />
+                      <MealIcon type="lunch" mealName={meals.lunch.name} day={day} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.lunch.name}</h3>
@@ -423,7 +447,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <MealIcon type="dinner" mealName={meals.dinner.name} />
+                      <MealIcon type="dinner" mealName={meals.dinner.name} day={day} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.dinner.name}</h3>
@@ -464,7 +488,7 @@ export default function MealPlanPage() {
                     {meals.snacks.map((snack, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                          <MealIcon type="snack" mealName={snack.name} />
+                          <MealIcon type="snack" mealName={snack.name} day={day} />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium text-sm">{snack.name}</h3>
@@ -567,7 +591,7 @@ export default function MealPlanPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <div className="rounded-md overflow-hidden mb-4 bg-gray-100 h-48 flex items-center justify-center">
-                    <MealIcon type={showRecipe.type} mealName={showRecipe.name} />
+                    <MealIcon type={showRecipe.type} mealName={showRecipe.name} day={activeDay} />
                   </div>
 
                   <div className="space-y-4">

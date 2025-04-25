@@ -74,6 +74,20 @@ const notifications: Notification[] = [
     read: true,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
   },
+  {
+    id: 6,
+    userId: 1,
+    type: "alert",
+    title: "High Sodium Intake",
+    message:
+      "Your family's sodium intake has exceeded the recommended daily limit for 3 consecutive days. Consider reducing processed foods and adding more fresh ingredients.",
+    read: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+    action: {
+      label: "View Details",
+      url: "/progress",
+    },
+  },
 ]
 
 // Mock API functions
