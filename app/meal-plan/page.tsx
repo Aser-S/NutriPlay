@@ -35,8 +35,69 @@ import {
   Droplet,
   Heart,
   Info,
+  Egg,
+  Fish,
+  Beef,
+  Sandwich,
+  Pizza,
+  Soup,
+  Utensils,
+  Banana,
+  Cherry,
+  Grape,
+  Milk,
+  Cookie,
 } from "lucide-react"
 import { mealPlan } from "@/lib/mock-data"
+
+// Custom icon component for meals
+const MealIcon = ({ type, mealName }) => {
+  // Determine the appropriate icon based on meal name keywords
+  const lowercaseName = mealName.toLowerCase()
+
+  if (type === "breakfast") {
+    if (lowercaseName.includes("pancake")) return <Wheat className="h-8 w-8 text-amber-500" />
+    if (lowercaseName.includes("egg")) return <Egg className="h-8 w-8 text-yellow-500" />
+    if (lowercaseName.includes("yogurt")) return <Milk className="h-8 w-8 text-blue-100" />
+    if (lowercaseName.includes("smoothie")) return <Banana className="h-8 w-8 text-yellow-400" />
+    if (lowercaseName.includes("oatmeal")) return <Wheat className="h-8 w-8 text-amber-700" />
+    return <Coffee className="h-8 w-8 text-amber-800" />
+  }
+
+  if (type === "lunch") {
+    if (lowercaseName.includes("salad")) return <Salad className="h-8 w-8 text-green-500" />
+    if (lowercaseName.includes("sandwich")) return <Sandwich className="h-8 w-8 text-amber-600" />
+    if (lowercaseName.includes("soup")) return <Soup className="h-8 w-8 text-orange-400" />
+    if (lowercaseName.includes("bowl")) return <Utensils className="h-8 w-8 text-purple-500" />
+    if (lowercaseName.includes("wrap")) return <Sandwich className="h-8 w-8 text-green-400" />
+    return <Utensils className="h-8 w-8 text-blue-500" />
+  }
+
+  if (type === "dinner") {
+    if (lowercaseName.includes("chicken")) return <Egg className="h-8 w-8 text-orange-300" />
+    if (lowercaseName.includes("fish") || lowercaseName.includes("salmon") || lowercaseName.includes("cod"))
+      return <Fish className="h-8 w-8 text-blue-400" />
+    if (lowercaseName.includes("steak") || lowercaseName.includes("beef"))
+      return <Beef className="h-8 w-8 text-red-500" />
+    if (lowercaseName.includes("pizza")) return <Pizza className="h-8 w-8 text-red-400" />
+    if (lowercaseName.includes("pasta")) return <Utensils className="h-8 w-8 text-yellow-600" />
+    return <ChefHat className="h-8 w-8 text-purple-500" />
+  }
+
+  if (type === "snack") {
+    if (lowercaseName.includes("apple")) return <Apple className="h-8 w-8 text-red-500" />
+    if (lowercaseName.includes("banana")) return <Banana className="h-8 w-8 text-yellow-400" />
+    if (lowercaseName.includes("yogurt")) return <Milk className="h-8 w-8 text-blue-100" />
+    if (lowercaseName.includes("nuts")) return <Cookie className="h-8 w-8 text-amber-700" />
+    if (lowercaseName.includes("chocolate")) return <Cookie className="h-8 w-8 text-amber-900" />
+    if (lowercaseName.includes("fruit") || lowercaseName.includes("berry"))
+      return <Cherry className="h-8 w-8 text-red-400" />
+    if (lowercaseName.includes("grape")) return <Grape className="h-8 w-8 text-purple-500" />
+    return <Apple className="h-8 w-8 text-green-500" />
+  }
+
+  return <Utensils className="h-8 w-8 text-gray-400" />
+}
 
 export default function MealPlanPage() {
   const [activeDay, setActiveDay] = useState("monday")
@@ -51,14 +112,14 @@ export default function MealPlanPage() {
   const [currentWeek, setCurrentWeek] = useState("This Week")
   const [showRecipe, setShowRecipe] = useState(null)
 
-  const handleFilterChange = (filter: keyof typeof filters) => {
+  const handleFilterChange = (filter) => {
     setFilters({
       ...filters,
       [filter]: !filters[filter],
     })
   }
 
-  const handleReplaceMeal = (meal: string) => {
+  const handleReplaceMeal = (meal) => {
     // In a real app, this would call an API to get a replacement meal
     alert(`Replacing ${meal}...`)
   }
@@ -269,7 +330,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <Coffee className="h-8 w-8 text-gray-400" />
+                      <MealIcon type="breakfast" mealName={meals.breakfast.name} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.breakfast.name}</h3>
@@ -318,7 +379,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <Salad className="h-8 w-8 text-gray-400" />
+                      <MealIcon type="lunch" mealName={meals.lunch.name} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.lunch.name}</h3>
@@ -362,7 +423,7 @@ export default function MealPlanPage() {
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                      <ChefHat className="h-8 w-8 text-gray-400" />
+                      <MealIcon type="dinner" mealName={meals.dinner.name} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium mb-1">{meals.dinner.name}</h3>
@@ -403,7 +464,7 @@ export default function MealPlanPage() {
                     {meals.snacks.map((snack, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
-                          <Apple className="h-6 w-6 text-gray-400" />
+                          <MealIcon type="snack" mealName={snack.name} />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium text-sm">{snack.name}</h3>
@@ -506,15 +567,7 @@ export default function MealPlanPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <div className="rounded-md overflow-hidden mb-4 bg-gray-100 h-48 flex items-center justify-center">
-                    {showRecipe.type === "breakfast" ? (
-                      <Coffee className="h-16 w-16 text-gray-300" />
-                    ) : showRecipe.type === "lunch" ? (
-                      <Salad className="h-16 w-16 text-gray-300" />
-                    ) : showRecipe.type === "dinner" ? (
-                      <ChefHat className="h-16 w-16 text-gray-300" />
-                    ) : (
-                      <Apple className="h-16 w-16 text-gray-300" />
-                    )}
+                    <MealIcon type={showRecipe.type} mealName={showRecipe.name} />
                   </div>
 
                   <div className="space-y-4">

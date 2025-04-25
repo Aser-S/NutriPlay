@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
   LayoutDashboard,
@@ -184,8 +184,10 @@ export function AppSidebar({ children }) {
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-              <AvatarFallback>{isAdmin ? "A" : isProjectManager ? "PM" : "ZT"}</AvatarFallback>
+              {/* Use a colored background with initials as fallback */}
+              <AvatarFallback className="bg-gradient-to-br from-green-400 to-blue-500 text-white">
+                {isAdmin ? "A" : isProjectManager ? "PM" : "ZT"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="font-medium">{isAdmin ? "Admin" : isProjectManager ? "Project Manager" : "Zeyad Tamer"}</p>

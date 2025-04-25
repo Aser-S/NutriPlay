@@ -1,687 +1,608 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
+import { useState } from "react"
 import { AppSidebar } from "@/components/layout/sidebar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  UtensilsCrossed,
-  Trophy,
-  BarChart3,
-  Droplet,
-  Apple,
-  Egg,
-  Flame,
-  Edit,
-  ArrowRight,
-  CheckCircle2,
-  AlertCircle,
+  BarChart,
   Bell,
-  Users,
-  Goal,
-  Filter,
-  AlertTriangle,
-  MessageSquare,
-  CalendarIcon,
+  Calendar,
+  ChevronRight,
+  Droplet,
+  Flame,
+  Heart,
+  Info,
+  Leaf,
+  Plus,
+  Star,
+  Trophy,
+  Utensils,
+  Zap,
+  Award,
+  Sunrise,
+  Dumbbell,
+  Salad,
+  Carrot,
+  Droplets,
+  Target,
 } from "lucide-react"
 import { userData, challenges, nutritionTips } from "@/lib/mock-data"
-import { generateUserReport } from "@/lib/mock-data-updates"
+
+// Badge icon component to display colorful icons for badges
+const BadgeIcon = ({ name }) => {
+  const lowercaseName = name.toLowerCase()
+
+  if (lowercaseName.includes("early bird")) return <Sunrise className="h-8 w-8 text-amber-500" />
+  if (lowercaseName.includes("protein")) return <Dumbbell className="h-8 w-8 text-purple-500" />
+  if (lowercaseName.includes("veggie")) return <Carrot className="h-8 w-8 text-green-500" />
+  if (lowercaseName.includes("hydration")) return <Droplets className="h-8 w-8 text-blue-500" />
+  if (lowercaseName.includes("meal")) return <Utensils className="h-8 w-8 text-orange-500" />
+
+  // Default badge icon
+  return <Award className="h-8 w-8 text-indigo-500" />
+}
 
 export default function DashboardPage() {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [dailyGoals, setDailyGoals] = useState(userData.dailyGoals)
-  const [randomTip, setRandomTip] = useState("")
-  const [showEmergencyAlert, setShowEmergencyAlert] = useState(false)
+  const [activeTab, setActiveTab] = useState("overview")
 
-  // Add a state for the user report
-  const [userReport, setUserReport] = useState(null)
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
-
-  // Add a function to handle report generation
-  const handleGenerateReport = async () => {
-    setIsGeneratingReport(true)
-    try {
-      const report = await generateUserReport("1") // Assuming Zeyad's ID is 1
-      setUserReport(report)
-    } catch (error) {
-      console.error("Error generating report:", error)
-    } finally {
-      setIsGeneratingReport(false)
-    }
-  }
-
-  // Add a report dialog to the component
-  // Add this before the return statement
-  const [showReportDialog, setShowReportDialog] = useState(false)
-
-  useEffect(() => {
-    setIsLoaded(true)
-    // Get a random nutrition tip
-    const tipIndex = Math.floor(Math.random() * nutritionTips.length)
-    setRandomTip(nutritionTips[tipIndex])
-
-    // Show emergency alert after 5 seconds for demo purposes
-    const timer = setTimeout(() => {
-      setShowEmergencyAlert(true)
-    }, 5000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleGoalUpdate = (newGoals) => {
-    setDailyGoals(newGoals)
-  }
-
-  const dismissAlert = () => {
-    setShowEmergencyAlert(false)
-  }
+  // Calculate progress percentages
+  const caloriesProgress = (userData.progress.calories / userData.dailyGoals.calories) * 100
+  const proteinProgress = (userData.progress.protein / userData.dailyGoals.protein) * 100
+  const carbsProgress = (userData.progress.carbs / userData.dailyGoals.carbs) * 100
+  const fatProgress = (userData.progress.fat / userData.dailyGoals.fat) * 100
+  const waterProgress = (userData.progress.water / userData.dailyGoals.water) * 100
 
   return (
     <AppSidebar>
       <div className="space-y-6">
-        {/* Emergency Alert */}
-        {showEmergencyAlert && (
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start justify-between"
-          >
-            <div className="flex items-start">
-              <AlertTriangle className="h-6 w-6 text-red-500 mr-3 mt-0.5" />
-              <div>
-                <h3 className="font-bold text-red-700">Emergency Alert: High Sodium Intake</h3>
-                <p className="text-red-600">
-                  Your sodium intake has exceeded your daily limit by 45%. This could affect your blood pressure.
-                </p>
-                <div className="mt-2">
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-300 mr-2">
-                    View Details
-                  </Button>
-                  <Button size="sm" className="bg-red-600 hover:bg-red-700">
-                    Contact Nutritionist
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" onClick={dismissAlert} className="text-red-500">
-              Dismiss
+        {/* Welcome Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome back, {userData.name}!</h1>
+            <p className="text-gray-500">Track your nutrition, set goals, and improve your health.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>Today</span>
             </Button>
-          </motion.div>
-        )}
-
-        {/* Welcome Section */}
-        <section className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border-2 border-green-200">
-                <AvatarImage src={userData.avatar || "/placeholder.svg"} alt={userData.name} />
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-bold">Welcome back, Zeyad Tamer!</h1>
-                <p className="text-gray-500">You're on a {userData.streakDays}-day streak. Keep it up!</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
-                <Flame className="h-4 w-4 mr-1" />
-                {userData.streakDays} Day Streak
-              </Badge>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
-                <Trophy className="h-4 w-4 mr-1" />
-                {userData.badges.filter((b) => b.earned).length} Badges
-              </Badge>
-              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 px-3 py-1">
-                <CheckCircle2 className="h-4 w-4 mr-1" />
-                {challenges.daily.filter((c) => c.completed).length} Challenges
-              </Badge>
-            </div>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              <span>Log Meal</span>
+            </Button>
           </div>
-        </section>
+        </div>
 
-        {/* Quick Access Cards */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {isLoaded && (
-              <>
-                <QuickAccessCard
-                  icon={<UtensilsCrossed className="h-8 w-8 text-orange-500" />}
-                  title="Log Meal"
-                  description="Track your meals and nutrition"
-                  href="/food-log"
-                  delay={0.1}
-                />
-                <QuickAccessCard
-                  icon={<Filter className="h-8 w-8 text-purple-500" />}
-                  title="Filter Meals"
-                  description="Based on health conditions"
-                  href="/meal-plan"
-                  delay={0.2}
-                />
-                <QuickAccessCard
-                  icon={<Goal className="h-8 w-8 text-blue-500" />}
-                  title="Set Goals"
-                  description="Track your nutrition goals"
-                  href="/goals"
-                  delay={0.3}
-                />
-                <QuickAccessCard
-                  icon={<Users className="h-8 w-8 text-green-500" />}
-                  title="Family Goals"
-                  description="View family nutrition"
-                  href="/family"
-                  delay={0.4}
-                />
-                <QuickAccessCard
-                  icon={<BarChart3 className="h-8 w-8 text-yellow-500" />}
-                  title="Eating Patterns"
-                  description="Analyze your nutrition habits"
-                  href="/progress"
-                  delay={0.5}
-                />
-                <QuickAccessCard
-                  icon={<BarChart3 className="h-8 w-8 text-purple-500" />}
-                  title="AI Nutrition Report"
-                  description="Get personalized insights"
-                  onClick={() => setShowReportDialog(true)}
-                  delay={0.6}
-                />
-              </>
-            )}
-          </div>
-        </section>
+        {/* Dashboard Tabs */}
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-3 w-full md:w-[400px]">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="challenges">Challenges</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
+          </TabsList>
 
-        {/* Daily Goals and Progress */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle>Today's Progress</CardTitle>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit Goals</span>
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Daily Progress */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Flame className="h-5 w-5 text-orange-500" />
+                    <span>Daily Nutrition Progress</span>
+                  </CardTitle>
+                  <CardDescription>Your nutrition goals for today</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Flame className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm font-medium">Calories</span>
+                      </div>
+                      <span className="text-sm">
+                        {userData.progress.calories} / {userData.dailyGoals.calories} kcal
+                      </span>
+                    </div>
+                    <Progress value={caloriesProgress} className="h-2" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm font-medium">Protein</span>
+                      </div>
+                      <span className="text-sm">
+                        {userData.progress.protein}g / {userData.dailyGoals.protein}g
+                      </span>
+                    </div>
+                    <Progress value={proteinProgress} className="h-2 bg-purple-100">
+                      <div className="h-full bg-purple-500 transition-all" style={{ width: `${proteinProgress}%` }} />
+                    </Progress>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Leaf className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-medium">Carbs</span>
+                      </div>
+                      <span className="text-sm">
+                        {userData.progress.carbs}g / {userData.dailyGoals.carbs}g
+                      </span>
+                    </div>
+                    <Progress value={carbsProgress} className="h-2 bg-green-100">
+                      <div className="h-full bg-green-500 transition-all" style={{ width: `${carbsProgress}%` }} />
+                    </Progress>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-red-500" />
+                        <span className="text-sm font-medium">Fat</span>
+                      </div>
+                      <span className="text-sm">
+                        {userData.progress.fat}g / {userData.dailyGoals.fat}g
+                      </span>
+                    </div>
+                    <Progress value={fatProgress} className="h-2 bg-red-100">
+                      <div className="h-full bg-red-500 transition-all" style={{ width: `${fatProgress}%` }} />
+                    </Progress>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Droplet className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm font-medium">Water</span>
+                      </div>
+                      <span className="text-sm">
+                        {userData.progress.water} / {userData.dailyGoals.water} cups
+                      </span>
+                    </div>
+                    <Progress value={waterProgress} className="h-2 bg-blue-100">
+                      <div className="h-full bg-blue-500 transition-all" style={{ width: `${waterProgress}%` }} />
+                    </Progress>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    Update Progress
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-amber-500" />
+                    <span>Achievements</span>
+                  </CardTitle>
+                  <CardDescription>Your earned badges and streaks</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-amber-400 to-amber-600 text-white p-3 rounded-full">
+                      <Flame className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{userData.streakDays} Day Streak</p>
+                      <p className="text-sm text-gray-500">Keep it up!</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {userData.badges.map((badge, index) => (
+                      <div
+                        key={index}
+                        className={`p-3 rounded-lg border flex items-start gap-3 ${
+                          badge.earned
+                            ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200"
+                            : "bg-gray-50 border-gray-200 opacity-60"
+                        }`}
+                      >
+                        <div
+                          className={`rounded-full p-2 ${
+                            badge.earned
+                              ? "bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600"
+                              : "bg-gray-200 text-gray-400"
+                          }`}
+                        >
+                          <BadgeIcon name={badge.name} />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${badge.earned ? "text-indigo-700" : "text-gray-500"}`}>
+                            {badge.name}
+                          </p>
+                          <p className="text-xs text-gray-500">{badge.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    View All Badges
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-green-400 to-emerald-500 text-white p-3 rounded-full">
+                      <Utensils className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-green-800">Plan Your Meals</h3>
+                      <p className="text-sm text-green-700">Create a weekly meal plan</p>
+                    </div>
+                    <Button size="icon" variant="ghost" className="text-green-700">
+                      <ChevronRight className="h-5 w-5" />
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Customize Your Daily Goals</DialogTitle>
-                      <DialogDescription>Set your nutrition targets based on your personal needs.</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="calories" className="text-right">
-                          Calories
-                        </Label>
-                        <Input id="calories" type="number" defaultValue={dailyGoals.calories} className="col-span-3" />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="protein" className="text-right">
-                          Protein (g)
-                        </Label>
-                        <Input id="protein" type="number" defaultValue={dailyGoals.protein} className="col-span-3" />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="carbs" className="text-right">
-                          Carbs (g)
-                        </Label>
-                        <Input id="carbs" type="number" defaultValue={dailyGoals.carbs} className="col-span-3" />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="fat" className="text-right">
-                          Fat (g)
-                        </Label>
-                        <Input id="fat" type="number" defaultValue={dailyGoals.fat} className="col-span-3" />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="water" className="text-right">
-                          Water (cups)
-                        </Label>
-                        <Input id="water" type="number" defaultValue={dailyGoals.water} className="col-span-3" />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit" onClick={() => handleGoalUpdate(dailyGoals)}>
-                        Save changes
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <CardDescription>
-                <span className="text-blue-500 cursor-pointer hover:underline">
-                  📝 Click here to customize your daily goal
-                </span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <Flame className="h-4 w-4 mr-2 text-orange-500" />
-                      <span>Calories</span>
-                    </div>
-                    <span className="text-sm font-medium">
-                      {userData.progress.calories} / {dailyGoals.calories} kcal
-                    </span>
                   </div>
-                  <Progress
-                    value={(userData.progress.calories / dailyGoals.calories) * 100}
-                    className="h-2 bg-orange-100"
-                    indicatorClassName="bg-orange-500"
-                  />
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <Egg className="h-4 w-4 mr-2 text-purple-500" />
-                      <span>Protein</span>
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white p-3 rounded-full">
+                      <BarChart className="h-6 w-6" />
                     </div>
-                    <span className="text-sm font-medium">
-                      {userData.progress.protein} / {dailyGoals.protein} g
-                    </span>
-                  </div>
-                  <Progress
-                    value={(userData.progress.protein / dailyGoals.protein) * 100}
-                    className="h-2 bg-purple-100"
-                    indicatorClassName="bg-purple-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <Apple className="h-4 w-4 mr-2 text-yellow-500" />
-                      <span>Carbs</span>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-blue-800">Track Progress</h3>
+                      <p className="text-sm text-blue-700">View your nutrition trends</p>
                     </div>
-                    <span className="text-sm font-medium">
-                      {userData.progress.carbs} / {dailyGoals.carbs} g
-                    </span>
+                    <Button size="icon" variant="ghost" className="text-blue-700">
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <Progress
-                    value={(userData.progress.carbs / dailyGoals.carbs) * 100}
-                    className="h-2 bg-yellow-100"
-                    indicatorClassName="bg-yellow-500"
-                  />
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <div className="h-4 w-4 mr-2 rounded-full bg-green-500" />
-                      <span>Fat</span>
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-purple-400 to-pink-500 text-white p-3 rounded-full">
+                      <Bell className="h-6 w-6" />
                     </div>
-                    <span className="text-sm font-medium">
-                      {userData.progress.fat} / {dailyGoals.fat} g
-                    </span>
-                  </div>
-                  <Progress
-                    value={(userData.progress.fat / dailyGoals.fat) * 100}
-                    className="h-2 bg-green-100"
-                    indicatorClassName="bg-green-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <Droplet className="h-4 w-4 mr-2 text-blue-500" />
-                      <span>Water</span>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-purple-800">Set Reminders</h3>
+                      <p className="text-sm text-purple-700">Never miss a meal or water</p>
                     </div>
-                    <span className="text-sm font-medium">
-                      {userData.progress.water} / {dailyGoals.water} cups
-                    </span>
+                    <Button size="icon" variant="ghost" className="text-purple-700">
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <Progress
-                    value={(userData.progress.water / dailyGoals.water) * 100}
-                    className="h-2 bg-blue-100"
-                    indicatorClassName="bg-blue-500"
-                  />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                Log Food Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Challenges</CardTitle>
-              <CardDescription>Complete challenges to earn points</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {challenges.daily.map((challenge) => (
-                  <div
-                    key={challenge.id}
-                    className={`flex items-center justify-between p-3 rounded-lg border ${
-                      challenge.completed ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${challenge.completed ? "bg-green-500" : "bg-gray-200"}`}>
-                        {challenge.completed ? (
-                          <CheckCircle2 className="h-5 w-5 text-white" />
+            {/* Nutrition Tip */}
+            <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-100">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-gradient-to-br from-amber-400 to-yellow-500 text-white p-3 rounded-full">
+                    <Info className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-amber-800 mb-1">Nutrition Tip of the Day</h3>
+                    <p className="text-amber-700">{nutritionTips[0]}</p>
+                    <Button variant="link" className="p-0 h-auto mt-2 text-amber-800">
+                      Read More Tips
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Challenges Tab */}
+          <TabsContent value="challenges" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-amber-500" />
+                    <span>Daily Challenges</span>
+                  </CardTitle>
+                  <CardDescription>Complete these challenges today</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {challenges.daily.map((challenge) => (
+                    <div key={challenge.id} className="flex items-center gap-4">
+                      <div
+                        className={`p-2 rounded-full ${
+                          challenge.completed ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {challenge.icon === "salad" ? (
+                          <Salad className="h-5 w-5" />
+                        ) : challenge.icon === "droplet" ? (
+                          <Droplet className="h-5 w-5" />
                         ) : (
-                          <AlertCircle className="h-5 w-5 text-gray-500" />
+                          <Utensils className="h-5 w-5" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-medium">{challenge.name}</p>
-                        <p className="text-sm text-gray-500">{challenge.points} points</p>
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <p className="font-medium">{challenge.name}</p>
+                          <Badge
+                            variant="outline"
+                            className={`${
+                              challenge.completed
+                                ? "bg-green-50 text-green-700 border-green-200"
+                                : "bg-gray-50 text-gray-700 border-gray-200"
+                            }`}
+                          >
+                            {challenge.points} pts
+                          </Badge>
+                        </div>
+                        <div className="flex items-center mt-1">
+                          <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${challenge.completed ? "bg-green-500" : "bg-gray-300"}`}
+                              style={{ width: challenge.completed ? "100%" : "0%" }}
+                            ></div>
+                          </div>
+                          <span className="ml-2 text-xs text-gray-500">
+                            {challenge.completed ? "Completed" : "Incomplete"}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <Button
-                      variant={challenge.completed ? "ghost" : "outline"}
-                      size="sm"
-                      disabled={challenge.completed}
-                    >
-                      {challenge.completed ? "Completed" : "Complete"}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full bg-green-500 hover:bg-green-600">View All Challenges</Button>
-            </CardFooter>
-          </Card>
-        </section>
+                  ))}
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full">View All Daily Challenges</Button>
+                </CardFooter>
+              </Card>
 
-        {/* Additional Features */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-blue-500" />
-                Reminders & Notifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg border border-blue-100 bg-blue-50">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-full bg-blue-100">
-                      <Bell className="h-4 w-4 text-blue-500" />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-purple-500" />
+                    <span>Weekly & Monthly Challenges</span>
+                  </CardTitle>
+                  <CardDescription>Your ongoing long-term challenges</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[...challenges.weekly, ...challenges.monthly].map((challenge) => (
+                    <div key={challenge.id} className="flex items-center gap-4">
+                      <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+                        {challenge.icon === "utensils" ? (
+                          <Utensils className="h-5 w-5" />
+                        ) : challenge.icon === "egg" ? (
+                          <Zap className="h-5 w-5" />
+                        ) : challenge.icon === "activity" ? (
+                          <Zap className="h-5 w-5" />
+                        ) : challenge.icon === "target" ? (
+                          <Target className="h-5 w-5" />
+                        ) : (
+                          <Trophy className="h-5 w-5" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <p className="font-medium">{challenge.name}</p>
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                            {challenge.points} pts
+                          </Badge>
+                        </div>
+                        <div className="flex items-center mt-1">
+                          <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-purple-500"
+                              style={{ width: `${(challenge.progress / challenge.total) * 100}%` }}
+                            ></div>
+                          </div>
+                          <span className="ml-2 text-xs text-gray-500">
+                            {challenge.progress}/{challenge.total}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">Lunch Reminder</p>
-                      <p className="text-sm text-gray-600">It's time for your lunch! Don't forget to log your meal.</p>
-                      <p className="text-xs text-gray-500 mt-1">12:30 PM</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-lg border border-green-100 bg-green-50">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-full bg-green-100">
-                      <Droplet className="h-4 w-4 text-green-500" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Hydration Alert</p>
-                      <p className="text-sm text-gray-600">You're 2 cups behind your water goal for today.</p>
-                      <p className="text-xs text-gray-500 mt-1">2:15 PM</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                Manage Notifications
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-purple-500" />
-                Nutritionist Chat
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-end">
-                  <div className="bg-purple-100 p-3 rounded-lg max-w-[80%]">
-                    <p className="text-sm">I've been feeling tired after lunch. Could my diet be causing this?</p>
-                    <p className="text-xs text-gray-500 mt-1">You, 10:30 AM</p>
-                  </div>
-                </div>
-
-                <div className="flex">
-                  <Avatar className="h-8 w-8 mr-2">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Nutritionist" />
-                    <AvatarFallback>DR</AvatarFallback>
-                  </Avatar>
-                  <div className="bg-gray-100 p-3 rounded-lg max-w-[80%]">
-                    <p className="text-sm">
-                      It could be related to blood sugar spikes. Try adding more protein to your lunch and reducing
-                      simple carbs.
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Dr. Smith, 10:45 AM</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex">
-                <Input placeholder="Type your message..." className="rounded-r-none" />
-                <Button className="rounded-l-none">Send</Button>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                View Full Chat
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-orange-500" />
-                Upcoming Consultations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg border border-orange-100 bg-orange-50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">Nutritionist Check-in</p>
-                      <p className="text-sm text-gray-600">Dr. Emily Johnson</p>
-                      <p className="text-xs text-gray-500 mt-1">Tomorrow, 2:00 PM</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Reschedule
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-lg border border-gray-200">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">Diet Plan Review</p>
-                      <p className="text-sm text-gray-600">Dr. Michael Chen</p>
-                      <p className="text-xs text-gray-500 mt-1">April 25, 10:30 AM</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Reschedule
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                Schedule New Consultation
-              </Button>
-            </CardFooter>
-          </Card>
-        </section>
-
-        {/* Nutrition Tip */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Nutrition Tip</CardTitle>
-            <CardDescription>Daily advice for healthy eating</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-orange-50 p-4 rounded-lg border border-orange-100">
-              <p className="text-gray-700 italic">"{randomTip}"</p>
+                  ))}
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full">View All Challenges</Button>
+                </CardFooter>
+              </Card>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full">
-              More Tips
-            </Button>
-          </CardFooter>
-        </Card>
-        <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>AI-Generated Nutrition Report</DialogTitle>
-              <DialogDescription>
-                Personalized insights and recommendations based on your nutrition data
-              </DialogDescription>
-            </DialogHeader>
 
-            {isGeneratingReport ? (
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mb-4"></div>
-                <p className="text-gray-500">Analyzing your nutrition data...</p>
-              </div>
-            ) : userReport ? (
-              <div className="space-y-6">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <h3 className="font-medium text-green-800 mb-2">Nutrition Summary</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Average Daily Calories</p>
-                      <p className="font-medium">{userReport.nutritionSummary.averageCalories} kcal</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Join New Challenges</CardTitle>
+                <CardDescription>Boost your motivation with these challenges</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border rounded-lg p-4 bg-gradient-to-br from-green-50 to-teal-50 border-green-100">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-green-100 text-green-600">
+                        <Salad className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-medium text-green-800">Plant-Based Week</h3>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Average Protein</p>
-                      <p className="font-medium">{userReport.nutritionSummary.averageProtein}g</p>
+                    <p className="text-sm text-green-700 mb-3">
+                      Try eating plant-based meals for a week and discover new recipes.
+                    </p>
+                    <Badge className="bg-green-100 text-green-700 border-green-200">200 points</Badge>
+                  </div>
+
+                  <div className="border rounded-lg p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-100">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                        <Droplet className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-medium text-blue-800">Hydration Challenge</h3>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Average Carbs</p>
-                      <p className="font-medium">{userReport.nutritionSummary.averageCarbs}g</p>
+                    <p className="text-sm text-blue-700 mb-3">
+                      Drink 10 cups of water daily for 30 days to improve your hydration habits.
+                    </p>
+                    <Badge className="bg-blue-100 text-blue-700 border-blue-200">150 points</Badge>
+                  </div>
+
+                  <div className="border rounded-lg p-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+                        <Zap className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-medium text-purple-800">Protein Power</h3>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Average Fat</p>
-                      <p className="font-medium">{userReport.nutritionSummary.averageFat}g</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Goal Adherence</p>
-                      <p className="font-medium">{userReport.nutritionSummary.adherenceToGoals}%</p>
-                    </div>
+                    <p className="text-sm text-purple-700 mb-3">
+                      Meet your daily protein goals for 14 consecutive days.
+                    </p>
+                    <Badge className="bg-purple-100 text-purple-700 border-purple-200">250 points</Badge>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Browse All Available Challenges</Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
+          {/* Insights Tab */}
+          <TabsContent value="insights" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Nutrition Insights</CardTitle>
+                <CardDescription>AI-powered analysis of your eating patterns</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 border rounded-lg bg-blue-50 border-blue-100">
+                  <h3 className="font-medium text-blue-800 mb-2">Meal Timing Patterns</h3>
+                  <p className="text-blue-700">
+                    You tend to eat dinner later than recommended (after 8 PM) on weekdays. This may affect your sleep
+                    quality and metabolism.
+                  </p>
+                  <div className="mt-2">
+                    <Button size="sm" variant="outline" className="text-blue-700 border-blue-200">
+                      View Recommendations
+                    </Button>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="font-medium mb-2">Recommendations</h3>
-                  <ul className="space-y-2">
-                    {userReport.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span>{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-4 border rounded-lg bg-green-50 border-green-100">
+                  <h3 className="font-medium text-green-800 mb-2">Positive Trends</h3>
+                  <p className="text-green-700">
+                    Your vegetable intake has increased by 25% in the last month. Keep up the good work!
+                  </p>
+                  <div className="mt-2">
+                    <Button size="sm" variant="outline" className="text-green-700 border-green-200">
+                      View Details
+                    </Button>
+                  </div>
                 </div>
 
-                <div>
-                  <h3 className="font-medium mb-2">Insights</h3>
-                  <ul className="space-y-2">
-                    {userReport.insights.map((insight, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                        <span>{insight}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-100">
+                  <h3 className="font-medium text-yellow-800 mb-2">Areas for Improvement</h3>
+                  <p className="text-yellow-700">
+                    Your fiber intake is below recommended levels. Consider adding more whole grains, legumes, and
+                    fruits to your diet.
+                  </p>
+                  <div className="mt-2">
+                    <Button size="sm" variant="outline" className="text-yellow-700 border-yellow-200">
+                      Get Suggestions
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">No report generated yet</p>
-                <Button onClick={handleGenerateReport}>Generate Report</Button>
-              </div>
-            )}
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Generate Comprehensive Report</Button>
+              </CardFooter>
+            </Card>
 
-            <DialogFooter>
-              {userReport && (
-                <Button variant="outline" onClick={() => setUserReport(null)}>
-                  Reset Report
-                </Button>
-              )}
-              <Button onClick={() => setShowReportDialog(false)}>Close</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Nutrition Tips</CardTitle>
+                  <CardDescription>Helpful advice for your health journey</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {nutritionTips.slice(0, 5).map((tip, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="p-2 rounded-full bg-amber-100 text-amber-600 mt-0.5">
+                        <Info className="h-4 w-4" />
+                      </div>
+                      <p className="text-sm">{tip}</p>
+                    </div>
+                  ))}
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    View All Tips
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Activity</CardTitle>
+                  <CardDescription>Recent actions and achievements</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-green-100 text-green-600">
+                      <Trophy className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">You earned the "Early Bird" badge!</p>
+                      <p className="text-xs text-gray-500">2 hours ago</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                      <Utensils className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">You logged breakfast: Oatmeal with berries</p>
+                      <p className="text-xs text-gray-500">5 hours ago</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+                      <Target className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">You completed your protein goal</p>
+                      <p className="text-xs text-gray-500">Yesterday</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-amber-100 text-amber-600">
+                      <Flame className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">You're on a 12-day streak!</p>
+                      <p className="text-xs text-gray-500">Today</p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    View Activity History
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppSidebar>
-  )
-}
-
-function QuickAccessCard({ icon, title, description, href, onClick, delay = 0 }) {
-  if (onClick) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay }}>
-        <Card
-          className="h-full hover:shadow-md transition-shadow cursor-pointer border-2 hover:border-green-200"
-          onClick={onClick}
-        >
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="mb-4 p-3 rounded-full bg-gray-100">{icon}</div>
-              <h3 className="font-semibold mb-1">{title}</h3>
-              <p className="text-sm text-gray-500">{description}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    )
-  }
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay }}>
-      <Link href={href}>
-        <Card className="h-full hover:shadow-md transition-shadow cursor-pointer border-2 hover:border-green-200">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="mb-4 p-3 rounded-full bg-gray-100">{icon}</div>
-              <h3 className="font-semibold mb-1">{title}</h3>
-              <p className="text-sm text-gray-500">{description}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    </motion.div>
   )
 }
