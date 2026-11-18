@@ -1,30 +1,32 @@
-# nutritionapp
+# 🥗 NutriPlay
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/asersherifps3-gmailcoms-projects/v0-nutritionapp)
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/asersherifps3-gmailcoms-projects/v0-nutritionapp)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/gVxDAEVJtyM)
+A gamified nutrition-tracking web app with food logging, AI-assisted meal planning, goals, progress charts and a nutritionist portal.
 
-## Overview
+## ✨ Features
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- 🍽️ **Food log** and 📷 **image log** for meals
+- 🤖 **AI meal plan** generation, plus manual meal plans
+- 🎯 **Goals**, 🏆 **challenges** and 📈 **progress** charts
+- 👨‍👩‍👧 **Family** accounts
+- 🩺 **Nutritionist** view, 🛠️ admin and project-manager dashboards
 
-## Deployment
+## 🧱 Tech stack
 
-Your project is live at:
+Next.js 15 · React 19 · TypeScript · Tailwind CSS · Recharts · built and deployed with v0 + Vercel
 
-**[https://vercel.com/asersherifps3-gmailcoms-projects/v0-nutritionapp](https://vercel.com/asersherifps3-gmailcoms-projects/v0-nutritionapp)**
+## 🚀 Getting started
 
-## Build your app
+```bash
+git clone https://github.com/Aser-S/NutriPlay.git
+cd NutriPlay
+pnpm install
+pnpm dev
+```
 
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/gVxDAEVJtyM](https://v0.dev/chat/projects/gVxDAEVJtyM)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Open http://localhost:3000.
